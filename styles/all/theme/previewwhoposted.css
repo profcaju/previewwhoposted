@@ -1,0 +1,48 @@
+/* Preview Who Posted - badges in Topic Preview popup */
+.whoposted_badges {
+	clear: both;
+	/* padding-top: 4px; */
+	line-height: 1.5;
+	text-align: right;
+	text-wrap: balance;
+}
+
+.whoposted_badge {
+	display: inline-block;
+	background: rgba(0, 0, 0, 0.06);
+	border-radius: 4px;
+	padding: 0px 5px;
+	margin: 0px 1px;
+	font-size: 9px;
+	white-space: nowrap;
+	border: 1px solid white;
+}
+
+.whoposted_name {
+	font-weight: bold;
+}
+
+.whoposted_count {
+	margin-left: 3px;
+	opacity: 0.65;
+	font-size: 9px;
+}
+
+.whoposted_count::before {
+	content: "(";
+}
+
+.whoposted_count::after {
+	content: ")";
+}
+
+/* Dark mode (DarkReader) - make all <hr> visible inside topic preview popup.
+   Uses linear-gradient for background-image because DarkReader does not
+   transform colors inside gradient functions. */
+[data-darkreader-scheme="dark"] .topic_preview_content hr,
+[data-darkreader-scheme="dark"] #topic_preview hr {
+	border: none !important;
+	height: 1px !important;
+	background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)) !important;
+	background-color: transparent !important;
+}
