@@ -149,7 +149,14 @@ class listener implements EventSubscriberInterface
 		$badges = '<div class="whoposted_badges">';
 		foreach ($this->whoposted_data[$topic_id] as $poster)
 		{
-			$username = get_username_string('full', $poster['user_id'], $poster['username'], $poster['user_colour']);
+			if ($poster['user_id'] == ANONYMOUS)
+			{
+				$username = get_username_string('no_profile', $poster['user_id'], $poster['username'], $poster['user_colour'], $poster['post_username']);
+			}
+			else
+			{
+				$username = get_username_string('full', $poster['user_id'], $poster['username'], $poster['user_colour']);
+			}
 
 			$badges .= '<span class="whoposted_badge">';
 			$badges .= '<span class="whoposted_name">' . $username . '</span>';
@@ -183,7 +190,7 @@ class listener implements EventSubscriberInterface
 	protected function fetch_whoposted(array $topic_ids)
 	{
 		$sql_ary = [
-			'SELECT'    => 'p.topic_id, COUNT(DISTINCT p.post_id) as posts, u.username, u.user_id, u.user_colour',
+			'SELECT'    => 'p.topic_id, COUNT(DISTINCT p.post_id) as posts, u.username, u.user_id, u.user_colour, p.post_username',
 			'FROM'      => [POSTS_TABLE => 'p'],
 			'LEFT_JOIN' => [[
 				'FROM' => [USERS_TABLE => 'u'],
@@ -192,7 +199,7 @@ class listener implements EventSubscriberInterface
 			'WHERE'     => $this->db->sql_in_set('p.topic_id', $topic_ids)
 				. ' AND p.post_visibility = ' . ITEM_APPROVED,
 			'GROUP_BY'  => 'p.topic_id, u.user_id, p.post_username',
-			'ORDER_BY'  => 'p.topic_id, posts DESC, u.username_clean ASC',
+			'ORDER_BY'  => "p.topic_id, CASE WHEN u.user_id IS NULL OR u.username_clean = 'anonymous' THEN 1 ELSE 0 END, posts DESC, u.username_clean ASC",
 		];
 
 		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
@@ -214,6 +221,7 @@ class listener implements EventSubscriberInterface
 					'user_id'     => (int) $row['user_id'],
 					'username'    => $row['username'],
 					'user_colour' => $row['user_colour'],
+					'post_username' => $row['post_username'],
 					'posts'       => (int) $row['posts'],
 				];
 			}
